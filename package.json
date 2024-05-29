@@ -1,0 +1,6 @@
+{
+  "name": "sh-err-trap",
+  "version": "0.0.1",
+  "description": "Alerts when your Bash script dies unexpectedly",
+}
+
