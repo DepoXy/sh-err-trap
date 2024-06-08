@@ -14,7 +14,8 @@ os_is_macos () {
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
 # Preserve tty flags
-_TTY_FLAGS="$(stty -g)"
+_TTY_FLAGS="$([ -t 0 ] && stty -g)" \
+  || true
 
 clear_traps () {
   trap - EXIT INT
@@ -58,7 +59,8 @@ trap_int () {
   #     to the terminal and hopefully that'll right the sh'ip.
   # - Note that `stty sane` also works here, but that's more like a reset.
   #   We use save-load to show that we restored the original tty settings.
-  stty "${_TTY_FLAGS}"
+  [ -t 0 ] && stty "${_TTY_FLAGS}" \
+    || true
 
   exit 3
 }
