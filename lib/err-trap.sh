@@ -45,7 +45,7 @@ exit_1 () {
 
 trap_exit () {
   local return_value=$?
-  
+
   clear_traps
 
   # USAGE: Alert on unexpected error path, so you can add happy path.
