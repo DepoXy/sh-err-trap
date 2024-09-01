@@ -34,11 +34,15 @@ set_traps_safe () {
 exit_0 () {
   clear_traps
 
+  err_trap_user_hook true 0
+
   exit 0
 }
 
 exit_1 () {
   clear_traps
+
+  err_trap_user_hook true 1
 
   exit 1
 }
@@ -47,6 +51,8 @@ trap_exit () {
   local return_value=$?
 
   clear_traps
+
+  err_trap_user_hook false ${return_value}
 
   # USAGE: Alert on unexpected error path, so you can add happy path.
   >&2 echo "ALERT: "$(basename -- "$0")" exited abnormally!"
@@ -67,6 +73,9 @@ trap_exit_safe () {
   >&2 echo "ALERT: "$(basename -- "$0")" tossed an error!"
   >&2 echo "- Hint: Enable \`set -x\` and run again..."
   >&2 echo "- But this script is playing it loose, and will keep going!"
+
+  # Meh. May need more context, i.e., not actually exit'ing.
+  err_trap_user_hook false 0
 
   return 0
 }
@@ -95,6 +104,19 @@ trap_int () {
     || true
 
   exit ${return_value}
+}
+
+# ***
+
+SH_ERR_TRAP_USER_HOOK="${SH_ERR_TRAP_USER_HOOK:-sh_err_trap_user_hook}"
+
+err_trap_user_hook () {
+  local normal_exit="$1"
+  local return_value="$2"
+
+  if typeset -f ${SH_ERR_TRAP_USER_HOOK} > /dev/null; then
+    ${SH_ERR_TRAP_USER_HOOK} "$@"
+  fi
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
