@@ -18,7 +18,12 @@ _TTY_FLAGS="$([ -t 0 ] && stty -g)" \
   || true
 
 clear_traps () {
+  local normal_exit="${1:-true}"
+  local return_value="${2:-0}"
+
   trap - EXIT INT
+
+  err_trap_user_hook "${normal_exit}" "${return_value}"
 }
 
 set_traps () {
@@ -32,17 +37,13 @@ set_traps_safe () {
 }
 
 exit_0 () {
-  clear_traps
-
-  err_trap_user_hook true 0
+  clear_traps true 0
 
   exit 0
 }
 
 exit_1 () {
-  clear_traps
-
-  err_trap_user_hook true 1
+  clear_traps true 1
 
   exit 1
 }
@@ -50,9 +51,7 @@ exit_1 () {
 trap_exit () {
   local return_value=$?
 
-  clear_traps
-
-  err_trap_user_hook false ${return_value}
+  clear_traps false ${return_value}
 
   # USAGE: Alert on unexpected error path, so you can add happy path.
   >&2 echo "ALERT: "$(basename -- "$0")" exited abnormally!"
@@ -73,9 +72,6 @@ trap_exit_safe () {
   >&2 echo "ALERT: "$(basename -- "$0")" tossed an error!"
   >&2 echo "- Hint: Enable \`set -x\` and run again..."
   >&2 echo "- But this script is playing it loose, and will keep going!"
-
-  # Meh. May need more context, i.e., not actually exit'ing.
-  err_trap_user_hook false 0
 
   return 0
 }
