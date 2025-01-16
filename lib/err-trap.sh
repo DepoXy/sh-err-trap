@@ -114,7 +114,8 @@ err_trap_user_hook () {
   local normal_exit="$1"
   local return_value="$2"
 
-  if typeset -f ${SH_ERR_TRAP_USER_HOOK} > /dev/null; then
+  # Bashism: typeset -f ${SH_ERR_TRAP_USER_HOOK} > /dev/null
+  if type ${SH_ERR_TRAP_USER_HOOK} > /dev/null 2>&1; then
     ${SH_ERR_TRAP_USER_HOOK} "$@"
   fi
 }
